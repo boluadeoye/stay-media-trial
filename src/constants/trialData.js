@@ -57,11 +57,29 @@ export const DISQUALIFICATIONS = [
   "If your project is too large for a trial"
 ];
 
+// EXACT 3 VERIFIED CASE STUDIES (HARDCODED STOCK ITEM REMOVED)
 export const CASE_STUDIES = [
-  { client: "Phelzink Productions", service: "Website, UI/UX, SEO & Lead Generation", metric1: "↑ Stronger brand presence", metric2: "↑ More enquiries", image: "https://legacy.staymedia.ng/wp-content/uploads/2026/06/phelzinkproductions.com-1-1-800x400.jpg" },
-  { client: "Cargolink International", service: "Website Development & Digital Presence", metric1: "↑ Better online visibility", metric2: "↑ Increased leads", image: "https://legacy.staymedia.ng/wp-content/uploads/2020/12/download-3-800x400.png" },
-  { client: "Paramount Publishers", service: "Website Redesign & SEO Optimization", metric1: "↑ Improved user experience", metric2: "↑ Higher traffic", image: "https://legacy.staymedia.ng/wp-content/uploads/2026/03/Screenshot-35.png" },
-  { client: "Oak Furniture", service: "E-commerce Website Development", metric1: "↑ Online sales growth", metric2: "↑ Better conversions", image: "https://legacy.staymedia.ng/wp-content/uploads/2025/10/Screenshot-135-1024x482.png" }
+  {
+    client: "Phelzink Productions",
+    service: "Website, UI/UX, SEO & Lead Generation Integration",
+    metric1: "↑ Stronger brand presence",
+    metric2: "↑ More enquiries",
+    image: "https://legacy.staymedia.ng/wp-content/uploads/2026/06/phelzinkproductions.com-1-1-800x400.jpg"
+  },
+  {
+    client: "Cargolink International",
+    service: "Website Development & Digital Presence",
+    metric1: "↑ Better online visibility",
+    metric2: "↑ Increased leads",
+    image: "https://legacy.staymedia.ng/wp-content/uploads/2020/12/download-3-800x400.png"
+  },
+  {
+    client: "Paramount Publishers",
+    service: "Website Redesign & SEO Optimization",
+    metric1: "↑ Improved user experience",
+    metric2: "↑ Higher traffic",
+    image: "https://legacy.staymedia.ng/wp-content/uploads/2026/06/05_26_WEB-2.jpg"
+  }
 ];
 
 export const TESTIMONIALS = [
