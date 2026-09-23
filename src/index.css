@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-dark: #060814;
+  --color-navy-surface: #0B0F24;
+  --color-solar: #F59E0B;
+  --color-solar-deep: #EA580C;
+  --color-brand-green: #009E3D;
+  --color-canvas: #FFFFFF;
+  --color-ground: #FAFAFA;
+  --color-porcelain: #F9FAFB;
+  --color-ink: #111827;
+  --color-meta: #6B7280;
+  --color-rule: #E5E7EB;
+
+  --font-display: "Montserrat", sans-serif;
+  --font-body: "Montserrat", sans-serif;
+}
+
+:root {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+}
