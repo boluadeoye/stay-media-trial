@@ -1,86 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
-import { TRIAL_ASSETS } from '../constants/trialData';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, Sun, Moon } from 'lucide-react';
+import { TRIAL_ASSETS, TRIAL_SERVICE_DATA } from '../constants/trialData';
 
-function Header({ onClaimClick }) {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+export default function Header({ theme = "light", onToggleTheme }) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const isDark = theme === "dark";
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-body ${
-        scrolled
-          ? 'bg-[#060814]/95 backdrop-blur-xl border-b border-white/10 py-3 shadow-2xl'
-          : 'bg-transparent py-4 sm:py-5'
-      }`}
-    >
-      <div className="max-w-[1320px] mx-auto px-4 sm:px-8 min-[1100px]:px-10 flex items-center justify-between">
-        
-        {/* Brand Logo */}
-        <a href="#" className="flex items-center space-x-2 flex-shrink-0">
-          <img
-            src={TRIAL_ASSETS.logo}
-            alt="Stay Media"
-            className="h-6 sm:h-7 w-auto object-contain rounded-[2px]"
-          />
-          <span className="font-display font-extrabold text-base sm:text-lg text-white tracking-tight">
-            STAY<span className="text-[#F59E0B]">MEDIA</span>
-          </span>
-        </a>
-
-        {/* Desktop Nav Links (Calibrated Spacing to Prevent Overlap) */}
-        <nav className="hidden min-[741px]:flex items-center justify-center flex-1 mx-3 min-[900px]:mx-6 space-x-3 min-[850px]:space-x-4 min-[1024px]:space-x-6 min-[1200px]:space-x-8 text-[11px] min-[1024px]:text-xs font-display font-semibold uppercase tracking-wider text-white/80">
-          <a href="#how-it-works" className="hover:text-[#F59E0B] transition-colors whitespace-nowrap">How It Works</a>
-          <a href="#services" className="hover:text-[#F59E0B] transition-colors whitespace-nowrap">Services You Can Try</a>
-          <a href="#case-studies" className="hover:text-[#F59E0B] transition-colors whitespace-nowrap">Case Studies</a>
-          <a href="#testimonials" className="hover:text-[#F59E0B] transition-colors whitespace-nowrap">Testimonials</a>
-          <a href="#faq" className="hover:text-[#F59E0B] transition-colors whitespace-nowrap">FAQ</a>
-        </nav>
-
-        {/* Right CTA Button */}
-        <div className="hidden min-[741px]:block flex-shrink-0">
+    <>
+      {/* Seamless Header Bar (Stroke line removed per Page 1) */}
+      <header className={`fixed top-0 left-0 right-0 z-40 py-4 px-6 sm:px-10 font-body transition-colors duration-200 border-b-0 ${
+        isDark ? 'bg-[#0C150F]/95 text-white' : 'bg-[#F4FBF2]/95 text-black'
+      }`}>
+        <div className="max-w-[1280px] mx-auto flex items-center justify-between relative">
+          
+          {/* Mode Switcher on Far Left */}
           <button
-            onClick={onClaimClick}
-            className="px-4 py-2 min-[900px]:px-5 min-[900px]:py-2.5 rounded-[8px] bg-gradient-to-r from-[#F59E0B] to-[#EA580C] text-white font-display font-bold text-[11px] min-[900px]:text-xs uppercase tracking-wider hover:opacity-95 transition-all shadow-md hover:scale-102 cursor-pointer whitespace-nowrap"
+            onClick={onToggleTheme}
+            className={`p-2 rounded-full border transition-colors cursor-pointer ${
+              isDark ? 'border-white/20 bg-white/5 text-[#F59E0B]' : 'border-black/15 bg-black/5 text-black'
+            }`}
+            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
-            Claim Free Trial
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
-        </div>
 
-        {/* Mobile Toggle */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-1.5 rounded-[6px] text-white/80 hover:text-white min-[741px]:hidden cursor-pointer"
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
+          {/* Centered Logo Lockup with Zero Duplicate Text */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
+            <a href="#" className="flex items-center">
+              <img
+                src={isDark ? TRIAL_ASSETS.logoDark : TRIAL_ASSETS.logoLight}
+                alt="Stay Media"
+                className="h-7 sm:h-8 w-auto object-contain"
+              />
+            </a>
+          </div>
 
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="min-[741px]:hidden bg-[#060814] border-b border-white/10 px-6 py-6 space-y-4 text-xs font-display font-bold uppercase tracking-wider text-white">
-          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block py-1">How It Works</a>
-          <a href="#services" onClick={() => setMobileMenuOpen(false)} className="block py-1">Services You Can Try</a>
-          <a href="#case-studies" onClick={() => setMobileMenuOpen(false)} className="block py-1">Case Studies</a>
-          <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="block py-1">Testimonials</a>
-          <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block py-1">FAQ</a>
+          {/* Hamburger on Far Right */}
           <button
-            onClick={() => { setMobileMenuOpen(false); onClaimClick(); }}
-            className="w-full py-3.5 mt-2 rounded-[8px] bg-gradient-to-r from-[#F59E0B] to-[#EA580C] text-white font-display font-bold text-xs uppercase tracking-wider text-center cursor-pointer shadow-lg"
+            onClick={() => setDrawerOpen(true)}
+            className={`p-2 rounded-[6px] transition-colors cursor-pointer ${
+              isDark ? 'text-white/80 hover:bg-white/10' : 'text-black hover:bg-black/5'
+            }`}
+            aria-label="Open menu drawer"
           >
-            Claim Free Trial →
+            <Menu className="w-5 h-5" />
           </button>
+
         </div>
-      )}
-    </header>
+      </header>
+
+      {/* FULL-SCREEN DRAWER LOCKED TO #0C150F (PAGE 4) */}
+      <AnimatePresence>
+        {drawerOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 w-full h-[100dvh] bg-[#0C150F] text-white p-7 sm:p-12 flex flex-col justify-between overflow-y-auto font-body"
+          >
+            <div className="flex items-center justify-between pb-6 border-b border-white/10">
+              <img
+                src={TRIAL_ASSETS.logoDark}
+                alt="Stay Media"
+                className="h-7 w-auto object-contain"
+              />
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center items-center text-center space-y-6 py-10 max-w-[620px] mx-auto">
+              <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10">
+                <span className="font-display font-bold text-[10px] uppercase tracking-widest text-[#F59E0B]">
+                  Digital Growth Partner
+                </span>
+              </div>
+
+              <p className="text-sm sm:text-base text-white/90 leading-relaxed font-normal">
+                {TRIAL_SERVICE_DATA.drawerNarrative}
+              </p>
+            </div>
+
+            <div className="pt-6 border-t border-white/10 text-center text-xs text-white/40">
+              © 2026 STAY MEDIA Ltd. All Rights Reserved.
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
-
-export default Header;
