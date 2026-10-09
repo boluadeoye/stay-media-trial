@@ -9,6 +9,8 @@ export function decodeHtml(str) {
 }
 
 export const TRIAL_ASSETS = {
+  favicon: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1791537638/blog_assets/cpogwbxbiqxcmuf9oe70.jpg",
+  monogramBadge: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1791537638/blog_assets/cpogwbxbiqxcmuf9oe70.jpg",
   logoLight: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1791298519/blog_assets/vitucfftjlaasihn5flv.png",
   logoDark: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1791298511/blog_assets/mbhrnk2zfumye1b4v1d4.png",
   logo: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1791298519/blog_assets/vitucfftjlaasihn5flv.png"
@@ -22,6 +24,8 @@ export const CONTACT_INFO = {
   wpAuditEndpoint: "https://legacy.staymedia.ng/wp-json/staymedia/v1/audit"
 };
 
+export const EBOOK_DOWNLOAD_URL = "https://mcusercontent.com/f1812bfda6c4733ced1073d3c/files/d4465044-af56-758d-d297-82390b50707d/Social_Media_Audit_Light_Theme.pdf";
+
 export const TRIAL_SERVICE_DATA = {
   headline: "Experience STAY MEDIA Digital Growth Service For Free",
   subtitle: "Help your business get seen, get engaged and get more customers with the right digital solution",
@@ -29,10 +33,11 @@ export const TRIAL_SERVICE_DATA = {
   scarcityText: "We only accept limited number of businesses per month",
   whatsappUrl: "https://whatsapp.com/channel/0029VbCYW8jGpLHWfbeNrz2W",
   wpAuditEndpoint: "https://legacy.staymedia.ng/wp-json/staymedia/v1/audit",
-  
+  ebookDownloadUrl: EBOOK_DOWNLOAD_URL,
+
   // VERIFIED 3D EBOOK COVER ASSET
   ebookCover: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1791464162/blog_assets/cezjegi6einxtdj5w4t4.jpg",
-  
+
   tabs: [
     { id: "cases", label: "Cases" },
     { id: "how-it-works", label: "How it works" },
@@ -93,7 +98,6 @@ export const TRIAL_SERVICE_DATA = {
     { q: "Can I try more than one service?", a: "We focus on one primary growth bottleneck during the 7 days to maximize impact." }
   ],
 
-  // 4 REAL VERIFIED GOOGLE REVIEWS (VERBATIM FROM SCREENSHOTS)
   googleReviews: [
     {
       author: "Kefee HP",

@@ -1,31 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, ArrowRight, Download } from 'lucide-react';
 import { TRIAL_SERVICE_DATA } from '../constants/trialData';
 
 export default function TrialConfirmationView({ onBack, isDark = false }) {
-  const [downloadSuccess, setDownloadSuccess] = useState(false);
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleEbookDownload = () => {
-    setDownloadSuccess(true);
-    const link = document.createElement('a');
-    link.href = TRIAL_SERVICE_DATA.ebookCover;
-    link.download = "StayMedia-Social-Media-Audit-Guide.jpg";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const downloadUrl = TRIAL_SERVICE_DATA.ebookDownloadUrl || "https://mcusercontent.com/f1812bfda6c4733ced1073d3c/files/d4465044-af56-758d-d297-82390b50707d/Social_Media_Audit_Light_Theme.pdf";
 
   return (
     <div className={`w-full min-h-screen font-body overflow-x-hidden selection:bg-[#0EA34A] selection:text-white pt-24 pb-20 px-6 sm:px-10 transition-colors duration-200 ${
       isDark ? 'bg-[#0C150F] text-white' : 'bg-[#F4FBF2] text-[#111827]'
     }`}>
       <div className="max-w-[920px] mx-auto space-y-12 text-left">
-        
+
         {/* STEP 1: APPLICATION RECEIVED & WHAT HAPPENS NEXT TIMELINE */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -90,7 +80,7 @@ export default function TrialConfirmationView({ onBack, isDark = false }) {
           }`}
         >
           <div className="grid grid-cols-1 min-[741px]:grid-cols-12 gap-8 items-center">
-            
+
             <div className="min-[741px]:col-span-5 flex justify-center">
               <div className="relative w-full max-w-[340px] aspect-[4/3] rounded-[18px] overflow-hidden shadow-2xl border border-black/10 dark:border-white/15">
                 <img
@@ -130,13 +120,15 @@ export default function TrialConfirmationView({ onBack, isDark = false }) {
               </div>
 
               <div className="pt-2">
-                <button
-                  onClick={handleEbookDownload}
-                  className="px-6 py-3.5 rounded-[8px] bg-black hover:bg-black/85 text-white font-display font-bold text-xs uppercase tracking-wider transition-colors shadow-lg flex items-center space-x-2 cursor-pointer"
+                <a
+                  href={downloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 px-6 py-3.5 rounded-[8px] bg-black hover:bg-black/85 text-white font-display font-bold text-xs uppercase tracking-wider transition-all shadow-lg cursor-pointer"
                 >
                   <Download className="w-4 h-4 text-[#0EA34A]" />
-                  <span>{downloadSuccess ? "✓ Downloading Guide..." : "GET FREE EBOOK"}</span>
-                </button>
+                  <span>GET FREE EBOOK</span>
+                </a>
               </div>
             </div>
 
@@ -173,7 +165,7 @@ export default function TrialConfirmationView({ onBack, isDark = false }) {
           </a>
         </motion.div>
 
-        {/* EXACT REQUIREMENT: '← Return back' */}
+        {/* '← Return back' */}
         <div className="text-center pt-2">
           <button
             onClick={onBack}

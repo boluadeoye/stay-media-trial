@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Star, ShieldCheck, Award, Clock, AlertCircle } from 'lucide-react';
-import { TRIAL_SERVICE_DATA, CONTACT_INFO } from '../constants/trialData';
+import { X, Star, ShieldCheck, Award, Clock, AlertCircle } from 'lucide-react';
+import { TRIAL_SERVICE_DATA, CONTACT_INFO, TRIAL_ASSETS } from '../constants/trialData';
 
 export default function QuoteModal({ isOpen, onClose, onSuccess }) {
   const [activeReviewIdx, setActiveReviewIdx] = useState(0);
@@ -47,15 +47,13 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
     if (validationAlert) setValidationAlert('');
   };
 
-  // EXPLICIT VALIDATION ENGINE WITH VISIBLE ERROR ALERTS
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
     if (!formData.businessName.trim()) newErrors.businessName = "Business name is required";
     if (!formData.phone.trim()) newErrors.phone = "Phone / WhatsApp is required";
-    
     if (!formData.email.trim()) {
       newErrors.email = "Work email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
@@ -71,9 +69,8 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
         if (k === 'email') return 'Work Email';
         return k;
       }).join(', ');
-      
+
       setValidationAlert(`Please fill in all required fields: ${missingList}`);
-      
       const scrollable = document.getElementById('modal-scroll-container');
       if (scrollable) scrollable.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -84,7 +81,8 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
     setFormStatus('submitting');
 
     const payload = {
-      businessName: formData.fullName,
+      fullName: formData.fullName,
+      businessName: formData.businessName,
       email: formData.email,
       phoneNumber: formData.phone,
       supportLookingFor: '7-Day Free Trial Sprint Application',
@@ -125,7 +123,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
             transition={{ type: "spring", stiffness: 450, damping: 25 }}
             className="relative w-full max-w-[960px] max-h-[92dvh] overflow-y-auto bg-white rounded-[24px] border border-[#E5E7EB] shadow-2xl z-10 grid grid-cols-1 min-[741px]:grid-cols-12 text-left"
           >
-            <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full text-black/50 hover:text-black hover:bg-black/5 z-20 cursor-pointer">
+            <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full text-black/50 hover:text-black hover:bg-black/5 z-20 cursor-pointer" aria-label="Close modal">
               <X className="w-5 h-5" />
             </button>
 
@@ -158,8 +156,13 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
               activePanel === 'reviews' ? 'block' : 'hidden min-[741px]:flex'
             }`}>
               <div className="space-y-4">
-                <div className="w-8 h-8 rounded-[8px] bg-[#0EA34A] text-white flex items-center justify-center font-display font-black text-xs">
-                  SM
+                {/* UPGRADED: STAY MEDIA LOGO BADGE (REPLACED CRUDE SM TEXT) */}
+                <div className="w-9 h-9 rounded-[10px] overflow-hidden border border-[#E5E7EB] bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-0.5">
+                  <img
+                    src={TRIAL_ASSETS.monogramBadge || TRIAL_ASSETS.logo}
+                    alt="Stay Media"
+                    className="w-full h-full object-cover rounded-[8px]"
+                  />
                 </div>
 
                 <div className="space-y-1">
