@@ -17,17 +17,163 @@ export const TRIAL_ASSETS = {
 };
 
 export const CONTACT_INFO = {
-  phone: "+234 905 304 4410",
+  socialHandle: "@staymediang",
   email: "speakto@staymedia.ng",
   supportEmail: "speakto@staymedia.ng",
   whatsappCommunityUrl: "https://whatsapp.com/channel/0029VbCYW8jGpLHWfbeNrz2W",
   wpAuditEndpoint: "https://legacy.staymedia.ng/wp-json/staymedia/v1/audit"
 };
 
+export const SOCIAL_LINKS = {
+  facebook: "https://facebook.com/staymediang",
+  instagram: "https://instagram.com/staymediang",
+  x: "https://x.com/staymediang",
+  threads: "https://threads.net/@staymediang",
+  linkedin: "https://linkedin.com/company/staymediang",
+  youtube: "https://youtube.com/@staymediang",
+  tiktok: "https://tiktok.com/@staymediang"
+};
+
+export const MULTI_COMMUNITY_CHANNELS = [
+  {
+    name: "WhatsApp VIP",
+    desc: "Instant growth playbooks & sprint cohort announcements",
+    url: "https://whatsapp.com/channel/0029VbCYW8jGpLHWfbeNrz2W",
+    badge: "Most Active"
+  },
+  {
+    name: "Instagram Community",
+    desc: "Exclusive broadcast channel & behind-the-scenes teardowns",
+    url: "https://www.instagram.com/channel/AbZh7nWRPGkdMFBy/",
+    badge: "Visual Hub"
+  },
+  {
+    name: "YouTube Community",
+    desc: "In-depth video walkthroughs and funnel teardowns",
+    url: "https://youtube.com/@staymediang/community?si=1TeKsZhs2NiPipyl",
+    badge: "Video Guides"
+  },
+  {
+    name: "X (Twitter) Channel",
+    desc: "Daily conversion breakdowns & founder perspectives",
+    url: "https://x.com/staymediang",
+    badge: "Real-Time"
+  }
+];
+
+// THE 4 FREE TRIAL BENEFIT PILLARS (VERBATIM REFERENCED SCREENSHOT)
+export const TRIAL_BENEFITS = [
+  {
+    id: "less-risk",
+    title: "Get started with less risk",
+    desc: "Explore the selected service before deciding on further investment."
+  },
+  {
+    id: "relevant-support",
+    title: "Receive business-relevant support",
+    desc: "Get a solution aligned with your stated needs and goals."
+  },
+  {
+    id: "new-opportunities",
+    title: "Discover new opportunities",
+    desc: "Identify ways to improve your visibility, customer experience, or sales process."
+  },
+  {
+    id: "informed-decision",
+    title: "Make a more informed decision",
+    desc: "Understand how the service fits into your broader business growth plans."
+  }
+];
+
+export const CATEGORIZED_FAQS = [
+  {
+    id: "about",
+    name: "About Stay Media",
+    questions: [
+      {
+        q: "What does Stay Media do?",
+        a: "Stay Media is a Digital Growth Partner. We help SMEs, startups, and established companies identify commercial growth roadblocks and engineer bespoke digital presence, custom web platforms, brand visual identities, and customer acquisition funnels."
+      },
+      {
+        q: "Are you a digital marketing agency?",
+        a: "No. Generic agencies sell vanity service menus (posts, clicks, and impressions). We operate as an aligned commercial growth partner focusing on revenue-grade conversion infrastructure, qualified pipeline acquisition, and retained business value."
+      },
+      {
+        q: "What does 'Digital Growth Partner' mean?",
+        a: "It means we do not deliver disconnected tasks. We diagnose your customer acquisition leaks first, build the commercial solution, and partner with your team to optimize real commercial metrics."
+      }
+    ]
+  },
+  {
+    id: "sprint",
+    name: "The 7-Day Sprint",
+    questions: [
+      {
+        q: "Is the trial really free?",
+        a: "Yes, 100% free. No payment, credit card, or financial commitment is required to apply or experience the 7-day sprint."
+      },
+      {
+        q: "How quickly will my sprint start after approval?",
+        a: "Approved cohorts begin within 48 to 72 hours of initial onboarding and access confirmation."
+      },
+      {
+        q: "What do I need to provide for the sprint to begin?",
+        a: "Basic details about your business goals, your current digital assets (logos, copy, access credentials), and prompt feedback during the 7-day window."
+      }
+    ]
+  },
+  {
+    id: "eligibility",
+    name: "Eligibility & Scope",
+    questions: [
+      {
+        q: "Does every business qualify?",
+        a: "We review each application carefully to ensure we can deliver tangible commercial value within 7 days. We prioritize businesses with active commercial operations and clear growth goals."
+      },
+      {
+        q: "Can I try more than one service during the sprint?",
+        a: "We focus on one primary commercial bottleneck during the 7 days to maximize execution speed and tangible impact."
+      },
+      {
+        q: "What is excluded from the free sprint?",
+        a: "Full enterprise custom software platforms, extensive multi-brand redesigns, unlimited revision rounds, and ongoing paid campaign management are excluded."
+      }
+    ]
+  },
+  {
+    id: "costs",
+    name: "Pricing & Ad Spend",
+    questions: [
+      {
+        q: "Do I need to pay for advertising budget during the trial?",
+        a: "If you choose a paid advertising sprint deliverable, ad spend is funded directly by you to Meta or Google, while our campaign engineering and strategy management is completely free."
+      },
+      {
+        q: "Are there any hidden software costs?",
+        a: "Zero hidden agency fees. Premium third-party software, domain names, or hosting subscriptions remain under client ownership."
+      }
+    ]
+  },
+  {
+    id: "continuation",
+    name: "Completion & Retainers",
+    questions: [
+      {
+        q: "Am I required to continue after the trial?",
+        a: "No. There is zero obligation. If you love the deliverables, you can choose to continue on a paid partner retainer plan."
+      },
+      {
+        q: "What happens after the 7 days conclude?",
+        a: "We review the deliverables together during a formal handover session and present a tailored roadmap if you wish to retain us for long-term growth."
+      }
+    ]
+  }
+];
+
 export const EBOOK_DOWNLOAD_URL = "https://mcusercontent.com/f1812bfda6c4733ced1073d3c/files/d4465044-af56-758d-d297-82390b50707d/Social_Media_Audit_Light_Theme.pdf";
 
 export const TRIAL_SERVICE_DATA = {
-  headline: "Experience STAY MEDIA Digital Growth Service For Free",
+  headline: "Experience STAY MEDIA Digital Growth Sprint For Free",
   subtitle: "Help your business get seen, get engaged and get more customers with the right digital solution",
   ctaText: "CLAIM FREE TRIAL",
   scarcityText: "We only accept limited number of businesses per month",
@@ -35,22 +181,19 @@ export const TRIAL_SERVICE_DATA = {
   wpAuditEndpoint: "https://legacy.staymedia.ng/wp-json/staymedia/v1/audit",
   ebookDownloadUrl: EBOOK_DOWNLOAD_URL,
 
-  // VERIFIED 3D EBOOK COVER ASSET
   ebookCover: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1791464162/blog_assets/cezjegi6einxtdj5w4t4.jpg",
 
   tabs: [
-    { id: "cases", label: "Cases" },
+    { id: "benefits", label: "Benefits" },
     { id: "how-it-works", label: "How it works" },
-    { id: "faqs", label: "FAQs" }
+    { id: "cases", label: "Cases" }
   ],
 
-  drawerNarrative: "STAY MEDIA is a digital growth partner focusing on growing SMEs/SMBs, startups, local service providers/vendors, and established companies’ visibility, engagement, and revenue significantly through digital solutions, including websites, mobile apps, landing pages, paid advertising, CRM systems, and conversion-focused marketing strategies.",
-
   caseCards: [
-    { id: "phelzink", client: "Phelzink Productions", icon: "heart" },
-    { id: "darader", client: "Darader Homes", icon: "user" },
-    { id: "hagios", client: "Hagios Invasions Global", icon: "target" },
-    { id: "unstoppable", client: "Unstoppable Prints", icon: "phone" }
+    { id: "phelzink-productions", slug: "phelzink-productions", client: "Phelzink Productions", icon: "heart", url: "https://staymedia.ng/#case-studies/phelzink-productions" },
+    { id: "darader-homes", slug: "darader-homes", client: "Darader Homes", icon: "user", url: "https://staymedia.ng/#case-studies/darader-homes" },
+    { id: "hagios-invasions-global", slug: "hagios-invasions-global", client: "Hagios Invasions Global", icon: "target", url: "https://staymedia.ng/#case-studies/hagios-invasions-global" },
+    { id: "unstoppable-prints", slug: "unstoppable-prints", client: "Unstoppable Prints", icon: "phone", url: "https://staymedia.ng/#case-studies/unstoppable-prints" }
   ],
 
   sprintSteps: [
@@ -84,18 +227,6 @@ export const TRIAL_SERVICE_DATA = {
       desc: "If you love the results, we'll recommend the best plan to help you keep growing.",
       image: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1790605766/blog_assets/bpoaregoqgsyofgypsx5.jpg"
     }
-  ],
-
-  faqs: [
-    { q: "Is the trial really free?", a: "Yes, 100% free. No payment, credit card, or financial commitment is required to apply or experience the 7-day sprint." },
-    { q: "Does every business qualify?", a: "We review each application carefully to ensure we can deliver tangible commercial value within 7 days." },
-    { q: "Am I required to continue after the trial?", a: "No. There is zero obligation. If you love the deliverables, you can choose to continue on a paid growth plan." },
-    { q: "Which services are eligible for the trial?", a: "Digital Presence, Web Engineering, Branding & Creative, Paid Acquisition, Sales Automation, Analytics, and Strategy." },
-    { q: "What happens after the 7 days?", a: "We review the deliverables together and present a tailored roadmap if you wish to retain us." },
-    { q: "What do I need to provide?", a: "Basic details about your business, your current digital assets, and prompt feedback during the sprint." },
-    { q: "Do I need to pay for advertising?", a: "If you choose a paid ads trial sprint, ad spend is paid directly to Meta/Google while our management is free." },
-    { q: "How quickly will my trial start?", a: "Approved cohorts begin within 48 to 72 hours of initial onboarding." },
-    { q: "Can I try more than one service?", a: "We focus on one primary growth bottleneck during the 7 days to maximize impact." }
   ],
 
   googleReviews: [
@@ -132,13 +263,12 @@ export const TRIAL_SERVICE_DATA = {
       "poor branding/creative", "poor sales/follow-up", "manual business processes",
       "poor marketing performance", "I'm not sure"
     ],
+    // TITLE CASE VERIFIED: "Basic Virtual Assistant"
     trialServices: [
       "Basic Landing Page",
       "Basic Social Media Management",
       "Basic Creative Designs",
-      "Basic CRM set up",
-      "Basic Analytics",
-      "Basic Growth Strategy",
+      "Basic Virtual Assistant",
       "I'm not sure, recommend one"
     ],
     whyInterested: [

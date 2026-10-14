@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ArrowRight, Download } from 'lucide-react';
-import { TRIAL_SERVICE_DATA } from '../constants/trialData';
+import { Check, ArrowRight, Download, Users } from 'lucide-react';
+import { TRIAL_SERVICE_DATA, MULTI_COMMUNITY_CHANNELS } from '../constants/trialData';
 
 export default function TrialConfirmationView({ onBack, isDark = false }) {
   useEffect(() => {
@@ -30,12 +30,13 @@ export default function TrialConfirmationView({ onBack, isDark = false }) {
               <span>Application Received</span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight font-display">
               Your 7-Day Growth Trial Application Has Been Received
             </h1>
 
-            <p className={`text-xs sm:text-sm leading-relaxed max-w-[56ch] ${
-              isDark ? 'text-white/75' : 'text-[#4B5563]'
+            {/* SENIOR ACCESSIBILITY: 16px MONTSERRAT EXPLANATION */}
+            <p className={`text-base leading-relaxed max-w-[62ch] font-body ${
+              isDark ? 'text-white/90' : 'text-[#111827]'
             }`}>
               Thanks for taking the first step toward improving your business digitally. Our team will review your application and contact you via WhatsApp/email with the next steps.
             </p>
@@ -52,19 +53,19 @@ export default function TrialConfirmationView({ onBack, isDark = false }) {
                 <span className="w-6 h-6 rounded-full bg-[#0EA34A] text-white flex items-center justify-center font-display font-bold text-xs flex-shrink-0">
                   01
                 </span>
-                <span className="text-xs font-display font-bold">Review Application</span>
+                <span className="text-sm font-display font-bold">Review Application</span>
               </div>
               <div className="flex items-center space-x-2.5">
                 <span className="w-6 h-6 rounded-full bg-[#0EA34A]/20 text-[#0EA34A] flex items-center justify-center font-display font-bold text-xs flex-shrink-0">
                   02
                 </span>
-                <span className="text-xs font-display font-bold">Qualification Check</span>
+                <span className="text-sm font-display font-bold">Qualification Check</span>
               </div>
               <div className="flex items-center space-x-2.5">
                 <span className="w-6 h-6 rounded-full bg-black/10 dark:bg-white/10 text-gray-500 flex items-center justify-center font-display font-bold text-xs flex-shrink-0">
                   03
                 </span>
-                <span className="text-xs font-display font-bold">7-Day Sprint Begins</span>
+                <span className="text-sm font-display font-bold">7-Day Sprint Begins</span>
               </div>
             </div>
           </div>
@@ -96,26 +97,27 @@ export default function TrialConfirmationView({ onBack, isDark = false }) {
                 While You Wait, Get Something Useful...
               </span>
 
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-snug">
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-snug font-display">
                 Get Our Free Social Media Audit Guide
               </h2>
 
-              <p className={`text-xs leading-relaxed ${isDark ? 'text-white/75' : 'text-[#4B5563]'}`}>
+              {/* 16px MONTSERRAT READABILITY */}
+              <p className={`text-base leading-relaxed font-body ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>
                 Want to start improving your business right now? We've created a practical digital growth guide to help business owners understand what is working, what is holding you back, and how to turn digital attention into sales.
               </p>
 
-              <div className="space-y-1.5 text-xs font-medium">
+              <div className="space-y-2 text-sm sm:text-base font-medium font-body">
                 <div className="flex items-center space-x-2 text-[#0EA34A]">
-                  <span>✔</span>
-                  <span className={isDark ? 'text-white/85' : 'text-[#111827]'}>Find out what is working and what is not</span>
+                  <span className="font-bold">✔</span>
+                  <span className={isDark ? 'text-white/95' : 'text-[#111827]'}>Find out what is working and what is not</span>
                 </div>
                 <div className="flex items-center space-x-2 text-[#0EA34A]">
-                  <span>✔</span>
-                  <span className={isDark ? 'text-white/85' : 'text-[#111827]'}>Discover what is holding your sales back</span>
+                  <span className="font-bold">✔</span>
+                  <span className={isDark ? 'text-white/95' : 'text-[#111827]'}>Discover what is holding your sales back</span>
                 </div>
                 <div className="flex items-center space-x-2 text-[#0EA34A]">
-                  <span>✔</span>
-                  <span className={isDark ? 'text-white/85' : 'text-[#111827]'}>Practical steps to generate more paying customers</span>
+                  <span className="font-bold">✔</span>
+                  <span className={isDark ? 'text-white/95' : 'text-[#111827]'}>Practical steps to generate more paying customers</span>
                 </div>
               </div>
 
@@ -124,7 +126,7 @@ export default function TrialConfirmationView({ onBack, isDark = false }) {
                   href={downloadUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 px-6 py-3.5 rounded-[8px] bg-black hover:bg-black/85 text-white font-display font-bold text-xs uppercase tracking-wider transition-all shadow-lg cursor-pointer"
+                  className="inline-flex items-center space-x-2 px-7 py-3.5 rounded-[8px] bg-black hover:bg-black/85 text-white font-display font-bold text-xs uppercase tracking-wider transition-all shadow-lg cursor-pointer"
                 >
                   <Download className="w-4 h-4 text-[#0EA34A]" />
                   <span>GET FREE EBOOK</span>
@@ -135,42 +137,61 @@ export default function TrialConfirmationView({ onBack, isDark = false }) {
           </div>
         </motion.div>
 
-        {/* STEP 3: STAY MEDIA COMMUNITY INVITATION */}
+        {/* STEP 3: MULTI-PLATFORM COMMUNITY CHANNELS HUB */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="p-8 sm:p-10 rounded-[24px] bg-gradient-to-br from-[#06170E] via-[#0B2215] to-[#04110A] text-white border border-white/15 shadow-2xl flex flex-col min-[741px]:flex-row items-start min-[741px]:items-center justify-between gap-6"
+          className="p-8 sm:p-10 rounded-[24px] bg-gradient-to-br from-[#06170E] via-[#0B2215] to-[#04110A] text-white border border-white/15 shadow-2xl space-y-6"
         >
-          <div className="space-y-2 max-w-[500px]">
-            <span className="text-[10px] font-display font-bold uppercase tracking-widest text-[#F5B800]">
-              Want more resources like this?
-            </span>
-            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              Join the Stay Media Community
+          <div className="space-y-2 max-w-[620px]">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 text-[10px] font-display font-bold uppercase tracking-widest text-[#F5B800]">
+              <Users className="w-3 h-3" />
+              <span>Multi-Platform Founder Hub</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-display">
+              Join the Stay Media Community Across Channels
             </h3>
-            <p className="text-xs text-white/75 leading-relaxed font-normal">
-              Connect directly with our growth practitioners and get exclusive commercial playbooks delivered directly to your WhatsApp.
+            <p className="text-base text-white/90 leading-relaxed font-body">
+              Connect directly with our growth practitioners and get exclusive commercial playbooks delivered directly to your preferred platform.
             </p>
           </div>
 
-          <a
-            href={TRIAL_SERVICE_DATA.whatsappUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="px-7 py-3.5 rounded-full bg-[#0EA34A] hover:bg-[#0C8F40] text-white font-display font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center space-x-2 whitespace-nowrap cursor-pointer"
-          >
-            <span>JOIN FREE</span>
-            <ArrowRight className="w-4 h-4" />
-          </a>
+          {/* Responsive Multi-Channel Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            {MULTI_COMMUNITY_CHANNELS.map((ch, idx) => (
+              <a
+                key={idx}
+                href={ch.url}
+                target="_blank"
+                rel="noreferrer"
+                className="p-4 rounded-[14px] bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#0EA34A] transition-all flex items-center justify-between group cursor-pointer"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-display font-bold text-sm text-white group-hover:text-[#0EA34A] transition-colors">
+                      {ch.name}
+                    </span>
+                    <span className="text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0EA34A]/20 text-[#0EA34A] font-bold">
+                      {ch.badge}
+                    </span>
+                  </div>
+                  <div className="text-xs text-white/70 leading-snug font-body">
+                    {ch.desc}
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-white/50 group-hover:text-[#0EA34A] group-hover:translate-x-1 transition-all flex-shrink-0 ml-3" />
+              </a>
+            ))}
+          </div>
         </motion.div>
 
         {/* '← Return back' */}
         <div className="text-center pt-2">
           <button
             onClick={onBack}
-            className={`text-xs font-display font-bold hover:underline cursor-pointer transition-colors ${
-              isDark ? 'text-white/60 hover:text-white' : 'text-[#6B7280] hover:text-[#111827]'
+            className={`text-sm font-display font-bold hover:underline cursor-pointer transition-colors ${
+              isDark ? 'text-white/70 hover:text-white' : 'text-[#6B7280] hover:text-[#111827]'
             }`}
           >
             ← Return back

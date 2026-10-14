@@ -9,19 +9,30 @@ const iconComponents = {
   phone: PhoneCall
 };
 
-// Verified Fallbacks ensuring zero downtime if WordPress is hydrating
+// Canonical Slug Normalizer Dictionary
+const CANONICAL_SLUG_MAP = {
+  phelzink: "phelzink-productions",
+  "phelzink-productions": "phelzink-productions",
+  darader: "darader-homes",
+  "darader-homes": "darader-homes",
+  hagios: "hagios-invasions-global",
+  "hagios-invasions-global": "hagios-invasions-global",
+  unstoppable: "unstoppable-prints",
+  "unstoppable-prints": "unstoppable-prints"
+};
+
 const DEFAULT_CASES = [
-  { id: "phelzink", client: "Phelzink Productions", icon: "heart", url: "https://phelzinkproductions.com" },
-  { id: "darader", client: "Darader Homes", icon: "user", url: "https://daraderhomes.com" },
-  { id: "cargolink", client: "Cargolink International", icon: "target", url: "https://cargolink.com.ng" },
-  { id: "hagios", client: "Hagios Invasions Global", icon: "phone", url: "https://hagiosinvasions.com" }
+  { id: "phelzink-productions", slug: "phelzink-productions", client: "Phelzink Productions", icon: "heart", url: "https://staymedia.ng/#case-studies/phelzink-productions" },
+  { id: "darader-homes", slug: "darader-homes", client: "Darader Homes", icon: "user", url: "https://staymedia.ng/#case-studies/darader-homes" },
+  { id: "hagios-invasions-global", slug: "hagios-invasions-global", client: "Hagios Invasions Global", icon: "target", url: "https://staymedia.ng/#case-studies/hagios-invasions-global" },
+  { id: "unstoppable-prints", slug: "unstoppable-prints", client: "Unstoppable Prints", icon: "phone", url: "https://staymedia.ng/#case-studies/unstoppable-prints" }
 ];
 
 export default function CasesSection({ isDark = false }) {
   const [cases, setCases] = useState(DEFAULT_CASES);
   const [loading, setLoading] = useState(true);
 
-  // 100% DYNAMIC WORDPRESS NPROJECT PIPELINE
+  // DYNAMIC WORDPRESS PIPELINE WITH CANONICAL SLUG SANITIZATION
   useEffect(() => {
     fetch("https://legacy.staymedia.ng/wp-json/wp/v2/nproject?_embed&per_page=4")
       .then((res) => res.json())
@@ -31,11 +42,15 @@ export default function CasesSection({ isDark = false }) {
           const dynamicCases = data.map((item, idx) => {
             const rawTitle = decodeHtml(item.title?.rendered);
             const fallback = DEFAULT_CASES[idx] || DEFAULT_CASES[0];
+            const rawSlug = (item.slug || String(item.id)).toLowerCase();
+            const canonicalSlug = CANONICAL_SLUG_MAP[rawSlug] || fallback.slug;
+
             return {
               id: item.id || fallback.id,
+              slug: canonicalSlug,
               client: rawTitle || fallback.client,
               icon: iconKeys[idx % iconKeys.length],
-              url: item.link || fallback.url
+              url: `https://staymedia.ng/#case-studies/${canonicalSlug}`
             };
           });
           setCases(dynamicCases);
@@ -48,14 +63,13 @@ export default function CasesSection({ isDark = false }) {
   return (
     <section id="cases" className="w-full py-8 px-6 sm:px-10 font-body bg-transparent">
       <div className="max-w-[1040px] mx-auto">
-        
-        {/* DESKTOP 4-COLUMN ROW (≥ 741px) - NO MODAL POPUP, DIRECT EXTERNAL LINKS */}
+        {/* DESKTOP 4-COLUMN ROW (≥ 741px) - CANONICAL LINKS TO STAYMEDIA.NG */}
         <div className="hidden min-[741px]:grid grid-cols-4 gap-3.5">
           {cases.map((card) => {
             const Icon = iconComponents[card.icon] || Heart;
             return (
               <a
-                key={card.id}
+                key={card.id || card.slug}
                 href={card.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -66,9 +80,8 @@ export default function CasesSection({ isDark = false }) {
                 }`}
               >
                 <div className="w-9 h-9 rounded-full bg-[#0EA34A]/10 text-[#0EA34A] flex items-center justify-center flex-shrink-0 transition-colors">
-                  <Icon className="w-4 h-4 fill-current" />
+                  <Icon className="w-4 h-4 stroke-[2]" />
                 </div>
-
                 <div className="text-left overflow-hidden flex-1 min-w-0">
                   <div className="font-display font-bold text-xs truncate">
                     {card.client}
@@ -85,12 +98,12 @@ export default function CasesSection({ isDark = false }) {
 
         {/* MOBILE HORIZONTAL SNAP SLIDER (< 741px) */}
         <div className="min-[741px]:hidden w-full overflow-hidden">
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-3 scrollbar-none -mx-2 px-2" style={{ touchAction: 'pan-x pan-y' }}>
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-3 scrollbar-none -mx-2 px-2" style={{ touchAction: 'pan-x pan-y', WebkitOverflowScrolling: 'touch' }}>
             {cases.map((card) => {
               const Icon = iconComponents[card.icon] || Heart;
               return (
                 <a
-                  key={card.id}
+                  key={card.id || card.slug}
                   href={card.url}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -99,9 +112,8 @@ export default function CasesSection({ isDark = false }) {
                   }`}
                 >
                   <div className="w-9 h-9 rounded-full bg-[#0EA34A]/10 text-[#0EA34A] flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-4 h-4 fill-current" />
+                    <Icon className="w-4 h-4 stroke-[2]" />
                   </div>
-
                   <div className="text-left overflow-hidden flex-1 min-w-0">
                     <div className="font-display font-bold text-xs truncate">
                       {card.client}
@@ -119,7 +131,6 @@ export default function CasesSection({ isDark = false }) {
             ← Swipe to see verified outcomes →
           </div>
         </div>
-
       </div>
     </section>
   );

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Star, ShieldCheck, Award, Clock, AlertCircle } from 'lucide-react';
 import { TRIAL_SERVICE_DATA, CONTACT_INFO, TRIAL_ASSETS } from '../constants/trialData';
 
-export default function QuoteModal({ isOpen, onClose, onSuccess }) {
+export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, isDark = false }) {
   const [activeReviewIdx, setActiveReviewIdx] = useState(0);
   const [activePanel, setActivePanel] = useState('form');
 
@@ -19,7 +19,8 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
     biggestChallenges: ['low customers'],
     serviceInterested: 'Basic Landing Page',
     whyInterested: 'I need more customers',
-    paidPlan: 'Yes'
+    paidPlan: 'Yes',
+    marketingConsent: false
   });
 
   const [formStatus, setFormStatus] = useState('idle');
@@ -47,7 +48,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
     if (validationAlert) setValidationAlert('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newErrors = {};
@@ -80,33 +81,58 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
     setValidationAlert('');
     setFormStatus('submitting');
 
+    const consentValue = formData.marketingConsent ? 'YES' : 'NO';
+
     const payload = {
       fullName: formData.fullName,
       businessName: formData.businessName,
       email: formData.email,
       phoneNumber: formData.phone,
+      marketingConsent: consentValue,
       supportLookingFor: '7-Day Free Trial Sprint Application',
-      helpText: `Company: ${formData.businessName}\nWebsite: ${formData.website}\nSocial: ${formData.socialHandle}\nIndustry: ${formData.industry}\nStage: ${formData.businessStage}\nChallenges: ${formData.biggestChallenges.join(', ')}\nService: ${formData.serviceInterested}\nWhy Interested: ${formData.whyInterested}\nPaid Plan: ${formData.paidPlan}`,
+      helpText: `Company: ${formData.businessName}\nWebsite: ${formData.website}\nSocial: ${formData.socialHandle}\nIndustry: ${formData.industry}\nStage: ${formData.businessStage}\nChallenges: ${formData.biggestChallenges.join(', ')}\nService: ${formData.serviceInterested}\nWhy Interested: ${formData.whyInterested}\nPaid Plan: ${formData.paidPlan}\nMarketing Consent: ${consentValue}`,
       target_email: CONTACT_INFO.supportEmail,
       submitted_at: new Date().toISOString()
     };
 
     try {
-      fetch(TRIAL_SERVICE_DATA.wpAuditEndpoint, {
+      const response = await fetch(TRIAL_SERVICE_DATA.wpAuditEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      }).catch(() => {});
-    } catch {}
+      });
 
-    setTimeout(() => {
+      const resData = await response.json().catch(() => ({}));
+
+      if (response.ok && (resData.success || resData.post_id)) {
+        setFormStatus('idle');
+        if (onSuccess) onSuccess();
+        if (onClose) onClose();
+      } else {
+        setFormStatus('idle');
+        setValidationAlert(resData.message || "Unable to submit application at this moment. Please try again or contact us directly on WhatsApp.");
+        const scrollable = document.getElementById('modal-scroll-container');
+        if (scrollable) scrollable.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch (err) {
       setFormStatus('idle');
-      if (onSuccess) onSuccess();
-      if (onClose) onClose();
-    }, 550);
+      setValidationAlert("Network connection error: Unable to process request. Please check your internet connection or apply directly via WhatsApp.");
+      const scrollable = document.getElementById('modal-scroll-container');
+      if (scrollable) scrollable.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
-  const reviews = TRIAL_SERVICE_DATA.googleReviews;
+  const reviews = TRIAL_SERVICE_DATA?.googleReviews && Array.isArray(TRIAL_SERVICE_DATA.googleReviews) && TRIAL_SERVICE_DATA.googleReviews.length > 0
+    ? TRIAL_SERVICE_DATA.googleReviews
+    : [
+        {
+          author: "Kefee HP",
+          role: "Local Guide · 6 reviews",
+          rating: 5,
+          quote: "Their service was excellent, with fast delivery and outstanding professionalism in communication."
+        }
+      ];
+
   const currentReview = reviews[activeReviewIdx] || reviews[0];
 
   return (
@@ -115,21 +141,32 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 font-body">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
 
+          {/* LIGHT MODE ARCHITECTURE: FORM SIDE = #F4FBF2 (PORCELAIN MINT) */}
           <motion.div
             id="modal-scroll-container"
             initial={{ opacity: 0, scale: 0.94, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 15 }}
             transition={{ type: "spring", stiffness: 450, damping: 25 }}
-            className="relative w-full max-w-[960px] max-h-[92dvh] overflow-y-auto bg-white rounded-[24px] border border-[#E5E7EB] shadow-2xl z-10 grid grid-cols-1 min-[741px]:grid-cols-12 text-left"
+            className={`relative w-full max-w-[960px] max-h-[92dvh] overflow-y-auto rounded-[24px] border shadow-2xl z-10 grid grid-cols-1 min-[741px]:grid-cols-12 text-left ${
+              isDark
+                ? 'bg-[#0C150F] border-white/15 text-white'
+                : 'bg-[#F4FBF2] border-[#E5E7EB] text-[#111827]'
+            }`}
           >
-            <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full text-black/50 hover:text-black hover:bg-black/5 z-20 cursor-pointer" aria-label="Close modal">
+            <button
+              onClick={onClose}
+              className={`absolute top-4 right-4 p-1.5 rounded-full z-20 cursor-pointer transition-colors ${
+                isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-black/50 hover:text-black hover:bg-black/5'
+              }`}
+              aria-label="Close modal"
+            >
               <X className="w-5 h-5" />
             </button>
 
             {/* Mobile Underline Switcher (< 741px) */}
             <div className="min-[741px]:hidden col-span-1 p-5 pb-0">
-              <div className="flex items-center border-b border-[#E5E7EB] w-full">
+              <div className={`flex items-center border-b w-full ${isDark ? 'border-white/10' : 'border-[#0EA34A]/20'}`}>
                 <button
                   type="button"
                   onClick={() => setActivePanel('form')}
@@ -151,13 +188,14 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Left Column: 4 Real Google Reviews Dotted Slider (~40% Width) */}
-            <div className={`min-[741px]:col-span-5 bg-[#F9FAFB] p-6 sm:p-7 border-b min-[741px]:border-b-0 min-[741px]:border-r border-[#E5E7EB] flex flex-col justify-between space-y-6 ${
-              activePanel === 'reviews' ? 'block' : 'hidden min-[741px]:flex'
-            }`}>
+            {/* LEFT COLUMN: REVIEWS (LIGHT MODE = #E8F7ED DEEP LIGHT MINT TINT PER DIRECTIVE) */}
+            <div className={`min-[741px]:col-span-5 p-6 sm:p-7 border-b min-[741px]:border-b-0 min-[741px]:border-r flex flex-col justify-between space-y-6 ${
+              isDark
+                ? 'bg-[#0B2215] border-white/10 text-white'
+                : 'bg-[#E8F7ED] border-[#0EA34A]/20 text-[#111827]'
+            } ${activePanel === 'reviews' ? 'block' : 'hidden min-[741px]:flex'}`}>
               <div className="space-y-4">
-                {/* UPGRADED: STAY MEDIA LOGO BADGE (REPLACED CRUDE SM TEXT) */}
-                <div className="w-9 h-9 rounded-[10px] overflow-hidden border border-[#E5E7EB] bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-0.5">
+                <div className="w-9 h-9 rounded-[10px] overflow-hidden border border-black/10 dark:border-white/15 bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-0.5">
                   <img
                     src={TRIAL_ASSETS.monogramBadge || TRIAL_ASSETS.logo}
                     alt="Stay Media"
@@ -171,21 +209,27 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                       <Star key={i} className="w-3.5 h-3.5 fill-current" />
                     ))}
                   </div>
-                  <span className="text-[10px] font-display font-bold text-black/60 uppercase">
+                  <span className={`text-[10px] font-display font-bold uppercase ${isDark ? 'text-white/60' : 'text-[#111827]/70'}`}>
                     Verified Google Reviews
                   </span>
                 </div>
 
-                <p className="text-xs text-black/75 leading-relaxed italic font-normal min-h-[110px]">
+                <p className={`text-xs leading-relaxed italic font-normal min-h-[110px] font-body ${
+                  isDark ? 'text-white/80' : 'text-[#111827]/85'
+                }`}>
                   "{currentReview.quote}"
                 </p>
 
                 <div>
-                  <div className="font-display font-bold text-xs text-black">{currentReview.author}</div>
-                  <div className="text-[10px] text-black/50">{currentReview.role}</div>
+                  <div className={`font-display font-bold text-xs ${isDark ? 'text-white' : 'text-[#111827]'}`}>
+                    {currentReview.author}
+                  </div>
+                  <div className={`text-[10px] ${isDark ? 'text-white/50' : 'text-[#111827]/60'}`}>
+                    {currentReview.role}
+                  </div>
                 </div>
 
-                {/* 4 Dotted Slider Controls */}
+                {/* Dotted Slider Controls */}
                 <div className="flex items-center space-x-2 pt-2">
                   {reviews.map((_, dotIdx) => (
                     <button
@@ -193,7 +237,9 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                       type="button"
                       onClick={() => setActiveReviewIdx(dotIdx)}
                       className={`h-2 rounded-full transition-all cursor-pointer ${
-                        activeReviewIdx === dotIdx ? 'w-6 bg-[#0EA34A]' : 'w-2 bg-black/20 hover:bg-black/40'
+                        activeReviewIdx === dotIdx
+                          ? 'w-6 bg-[#0EA34A]'
+                          : isDark ? 'w-2 bg-white/20 hover:bg-white/40' : 'w-2 bg-black/20 hover:bg-black/40'
                       }`}
                       aria-label={`Go to review ${dotIdx + 1}`}
                     />
@@ -201,27 +247,29 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#E5E7EB] space-y-2 text-[10.5px] text-black/70 font-display font-medium">
+              <div className={`pt-4 border-t space-y-2 text-[10.5px] font-display font-medium ${
+                isDark ? 'border-white/10 text-white/70' : 'border-[#0EA34A]/20 text-[#111827]/80'
+              }`}>
                 <div className="flex items-center space-x-2"><ShieldCheck className="w-3.5 h-3.5 text-[#0EA34A]" /><span>NDA Protected</span></div>
                 <div className="flex items-center space-x-2"><Award className="w-3.5 h-3.5 text-[#F5B800]" /><span>Awarded Agency</span></div>
                 <div className="flex items-center space-x-2"><Clock className="w-3.5 h-3.5 text-[#2563EB]" /><span>Verified Deliverables</span></div>
               </div>
             </div>
 
-            {/* Right Column: Application Form (~60% Width) */}
+            {/* RIGHT COLUMN: APPLICATION FORM (LIGHT MODE = #F4FBF2 SOFT PORCELAIN MINT CANVAS) */}
             <div className={`min-[741px]:col-span-7 p-6 sm:p-8 space-y-4 ${
-              activePanel === 'form' ? 'block' : 'hidden min-[741px]:block'
-            }`}>
+              isDark ? 'bg-[#0C150F] text-white' : 'bg-[#F4FBF2] text-[#111827]'
+            } ${activePanel === 'form' ? 'block' : 'hidden min-[741px]:block'}`}>
               <div className="space-y-1">
-                <h3 className="font-display font-black text-xl text-black">
+                <h3 className={`font-display font-black text-xl ${isDark ? 'text-white' : 'text-[#111827]'}`}>
                   Claim Your 7-Day Free Trial
                 </h3>
-                <p className="text-xs text-black/60">
+                <p className={`text-xs ${isDark ? 'text-white/60' : 'text-[#111827]/70'}`}>
                   Complete the application below to initiate your 7-day growth sprint.
                 </p>
               </div>
 
-              {/* VISIBLE VALIDATION ALERT BANNER */}
+              {/* Visible Validation Alert Banner */}
               {validationAlert && (
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
@@ -236,7 +284,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
               <form onSubmit={handleSubmit} noValidate className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10.5px] font-bold text-black mb-1">Full Name *</label>
+                    <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Full Name *</label>
                     <input
                       type="text"
                       placeholder="Samuel Adeleke"
@@ -244,15 +292,17 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                       onChange={(e) => handleFieldChange('fullName', e.target.value)}
                       className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none transition-colors ${
                         errors.fullName
-                          ? 'bg-red-50/30 border-2 border-red-500 text-black'
-                          : 'bg-[#F9FAFB] border border-[#E5E7EB] text-black focus:border-[#0EA34A]'
+                          ? 'bg-red-50/30 border-2 border-red-500'
+                          : isDark
+                          ? 'bg-[#06170E] border border-white/15 text-white focus:border-[#0EA34A]'
+                          : 'bg-white border border-[#E5E7EB] text-[#111827] focus:border-[#0EA34A]'
                       }`}
                     />
                     {errors.fullName && <p className="text-[10px] text-red-600 mt-1 font-medium">{errors.fullName}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-[10.5px] font-bold text-black mb-1">Business Name *</label>
+                    <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Business Name *</label>
                     <input
                       type="text"
                       placeholder="Company name"
@@ -260,8 +310,10 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                       onChange={(e) => handleFieldChange('businessName', e.target.value)}
                       className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none transition-colors ${
                         errors.businessName
-                          ? 'bg-red-50/30 border-2 border-red-500 text-black'
-                          : 'bg-[#F9FAFB] border border-[#E5E7EB] text-black focus:border-[#0EA34A]'
+                          ? 'bg-red-50/30 border-2 border-red-500'
+                          : isDark
+                          ? 'bg-[#06170E] border border-white/15 text-white focus:border-[#0EA34A]'
+                          : 'bg-white border border-[#E5E7EB] text-[#111827] focus:border-[#0EA34A]'
                       }`}
                     />
                     {errors.businessName && <p className="text-[10px] text-red-600 mt-1 font-medium">{errors.businessName}</p>}
@@ -270,7 +322,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10.5px] font-bold text-black mb-1">Phone / WhatsApp *</label>
+                    <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Phone / WhatsApp *</label>
                     <input
                       type="tel"
                       placeholder="+234..."
@@ -278,15 +330,17 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                       onChange={(e) => handleFieldChange('phone', e.target.value)}
                       className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none transition-colors ${
                         errors.phone
-                          ? 'bg-red-50/30 border-2 border-red-500 text-black'
-                          : 'bg-[#F9FAFB] border border-[#E5E7EB] text-black focus:border-[#0EA34A]'
+                          ? 'bg-red-50/30 border-2 border-red-500'
+                          : isDark
+                          ? 'bg-[#06170E] border border-white/15 text-white focus:border-[#0EA34A]'
+                          : 'bg-white border border-[#E5E7EB] text-[#111827] focus:border-[#0EA34A]'
                       }`}
                     />
                     {errors.phone && <p className="text-[10px] text-red-600 mt-1 font-medium">{errors.phone}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-[10.5px] font-bold text-black mb-1">Email Address *</label>
+                    <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Email Address *</label>
                     <input
                       type="email"
                       placeholder="name@company.com"
@@ -294,8 +348,10 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                       onChange={(e) => handleFieldChange('email', e.target.value)}
                       className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none transition-colors ${
                         errors.email
-                          ? 'bg-red-50/30 border-2 border-red-500 text-black'
-                          : 'bg-[#F9FAFB] border border-[#E5E7EB] text-black focus:border-[#0EA34A]'
+                          ? 'bg-red-50/30 border-2 border-red-500'
+                          : isDark
+                          ? 'bg-[#06170E] border border-white/15 text-white focus:border-[#0EA34A]'
+                          : 'bg-white border border-[#E5E7EB] text-[#111827] focus:border-[#0EA34A]'
                       }`}
                     />
                     {errors.email && <p className="text-[10px] text-red-600 mt-1 font-medium">{errors.email}</p>}
@@ -304,44 +360,52 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10.5px] font-bold text-black mb-1">Website URL</label>
+                    <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Website URL</label>
                     <input
                       type="text"
                       placeholder="https://..."
                       value={formData.website}
                       onChange={(e) => handleFieldChange('website', e.target.value)}
-                      className="w-full px-3 py-2 rounded-[6px] bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-black focus:border-[#0EA34A] focus:outline-none"
+                      className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none ${
+                        isDark ? 'bg-[#06170E] border border-white/15 text-white' : 'bg-white border border-[#E5E7EB] text-[#111827]'
+                      }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-[10.5px] font-bold text-black mb-1">Social Handle</label>
+                    <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Social Handle</label>
                     <input
                       type="text"
                       placeholder="Instagram / Facebook / LinkedIn"
                       value={formData.socialHandle}
                       onChange={(e) => handleFieldChange('socialHandle', e.target.value)}
-                      className="w-full px-3 py-2 rounded-[6px] bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-black focus:border-[#0EA34A] focus:outline-none"
+                      className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none ${
+                        isDark ? 'bg-[#06170E] border border-white/15 text-white' : 'bg-white border border-[#E5E7EB] text-[#111827]'
+                      }`}
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10.5px] font-bold text-black mb-1">Business Industry</label>
+                    <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Business Industry</label>
                     <input
                       type="text"
                       placeholder="e.g. Retail, Real Estate"
                       value={formData.industry}
                       onChange={(e) => handleFieldChange('industry', e.target.value)}
-                      className="w-full px-3 py-2 rounded-[6px] bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-black focus:border-[#0EA34A] focus:outline-none"
+                      className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none ${
+                        isDark ? 'bg-[#06170E] border border-white/15 text-white' : 'bg-white border border-[#E5E7EB] text-[#111827]'
+                      }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-[10.5px] font-bold text-black mb-1">Business Stage *</label>
+                    <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Business Stage *</label>
                     <select
                       value={formData.businessStage}
                       onChange={(e) => handleFieldChange('businessStage', e.target.value)}
-                      className="w-full px-3 py-2 rounded-[6px] bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-black focus:border-[#0EA34A] focus:outline-none"
+                      className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none ${
+                        isDark ? 'bg-[#06170E] border border-white/15 text-white' : 'bg-white border border-[#E5E7EB] text-[#111827]'
+                      }`}
                     >
                       {TRIAL_SERVICE_DATA.formOptions.businessStages.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -349,7 +413,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                 </div>
 
                 <div>
-                  <label className="block text-[10.5px] font-bold text-black mb-1">Biggest Challenge</label>
+                  <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Biggest Challenge</label>
                   <div className="flex overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 gap-1.5 py-1" style={{ touchAction: 'pan-x pan-y' }}>
                     {TRIAL_SERVICE_DATA.formOptions.biggestChallenges.map(item => {
                       const isSelected = formData.biggestChallenges.includes(item);
@@ -359,7 +423,9 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                           type="button"
                           onClick={() => toggleChallenge(item)}
                           className={`px-3 py-1.5 rounded-full text-[10.5px] font-display font-bold transition-all whitespace-nowrap cursor-pointer flex-shrink-0 ${
-                            isSelected ? 'bg-[#0EA34A] text-white shadow-sm' : 'bg-[#F3F4F6] text-black/75 hover:bg-[#E5E7EB]'
+                            isSelected
+                              ? 'bg-[#0EA34A] text-white shadow-sm'
+                              : isDark ? 'bg-white/5 text-white/80 hover:bg-white/10' : 'bg-white border border-[#E5E7EB] text-black/75 hover:bg-gray-100'
                           }`}
                         >
                           {isSelected ? `✓ ${item}` : `+ ${item}`}
@@ -369,37 +435,79 @@ export default function QuoteModal({ isOpen, onClose, onSuccess }) {
                   </div>
                 </div>
 
+                {/* SERVICE DROPDOWN: "Basic Virtual Assistant" INCLUDED IN TITLE CASE */}
                 <div>
-                  <label className="block text-[10.5px] font-bold text-black mb-1">Service you would like to try *</label>
+                  <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Service you would like to try *</label>
                   <select
                     value={formData.serviceInterested}
                     onChange={(e) => handleFieldChange('serviceInterested', e.target.value)}
-                    className="w-full px-3 py-2 rounded-[6px] bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-black focus:border-[#0EA34A] focus:outline-none"
+                    className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none ${
+                      isDark ? 'bg-[#06170E] border border-white/15 text-white' : 'bg-white border border-[#E5E7EB] text-[#111827]'
+                    }`}
                   >
                     {TRIAL_SERVICE_DATA.formOptions.trialServices.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[10.5px] font-bold text-black mb-1">Why are you interested in the free trial right now? *</label>
+                  <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>Why are you interested in the free trial right now? *</label>
                   <select
                     value={formData.whyInterested}
                     onChange={(e) => handleFieldChange('whyInterested', e.target.value)}
-                    className="w-full px-3 py-2 rounded-[6px] bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-black focus:border-[#0EA34A] focus:outline-none"
+                    className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none ${
+                      isDark ? 'bg-[#06170E] border border-white/15 text-white' : 'bg-white border border-[#E5E7EB] text-[#111827]'
+                    }`}
                   >
                     {TRIAL_SERVICE_DATA.formOptions.whyInterested.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[10.5px] font-bold text-black mb-1">If the trial delivers value, would you consider a paid plan? *</label>
+                  <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>If the trial delivers value, would you consider a paid plan? *</label>
                   <select
                     value={formData.paidPlan}
                     onChange={(e) => handleFieldChange('paidPlan', e.target.value)}
-                    className="w-full px-3 py-2 rounded-[6px] bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-black focus:border-[#0EA34A] focus:outline-none"
+                    className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none ${
+                      isDark ? 'bg-[#06170E] border border-white/15 text-white' : 'bg-white border border-[#E5E7EB] text-[#111827]'
+                    }`}
                   >
                     {TRIAL_SERVICE_DATA.formOptions.paidPlan.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
+                </div>
+
+                {/* Optional Marketing Checkbox */}
+                <div className="pt-1">
+                  <label className="flex items-start space-x-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={formData.marketingConsent}
+                      onChange={(e) => handleFieldChange('marketingConsent', e.target.checked)}
+                      className="mt-0.5 rounded border-gray-300 text-[#0EA34A] focus:ring-[#0EA34A]"
+                    />
+                    <span className={`text-[10.5px] leading-snug ${isDark ? 'text-white/70' : 'text-[#111827]/70'}`}>
+                      Send me commercial growth playbooks, quarterly perspective briefs, and marketing updates from STAY MEDIA (optional).
+                    </span>
+                  </label>
+                </div>
+
+                {/* Mandatory Legal Notice */}
+                <div className={`text-[10px] leading-tight pt-1 ${isDark ? 'text-white/60' : 'text-[#111827]/70'}`}>
+                  By submitting this application, you agree to our{" "}
+                  <button
+                    type="button"
+                    onClick={() => onOpenLegal && onOpenLegal('terms')}
+                    className="text-[#0EA34A] underline font-semibold hover:text-[#0C8F40] cursor-pointer"
+                  >
+                    Trial Terms
+                  </button>{" "}
+                  and{" "}
+                  <button
+                    type="button"
+                    onClick={() => onOpenLegal && onOpenLegal('privacy')}
+                    className="text-[#0EA34A] underline font-semibold hover:text-[#0C8F40] cursor-pointer"
+                  >
+                    Privacy Policy
+                  </button>.
                 </div>
 
                 <div className="pt-2">
