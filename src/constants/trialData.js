@@ -61,7 +61,6 @@ export const MULTI_COMMUNITY_CHANNELS = [
   }
 ];
 
-// THE 4 FREE TRIAL BENEFIT PILLARS (VERBATIM REFERENCED SCREENSHOT)
 export const TRIAL_BENEFITS = [
   {
     id: "less-risk",
@@ -263,12 +262,12 @@ export const TRIAL_SERVICE_DATA = {
       "poor branding/creative", "poor sales/follow-up", "manual business processes",
       "poor marketing performance", "I'm not sure"
     ],
-    // TITLE CASE VERIFIED: "Basic Virtual Assistant"
+    // EXACT OPTION VALUE: "Virtual Assistant" (TITLE CASE, NO "BASIC")
     trialServices: [
       "Basic Landing Page",
       "Basic Social Media Management",
       "Basic Creative Designs",
-      "Basic Virtual Assistant",
+      "Virtual Assistant",
       "I'm not sure, recommend one"
     ],
     whyInterested: [
