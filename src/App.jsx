@@ -23,8 +23,34 @@ export default function App() {
   const [showBottomCta, setShowBottomCta] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // LIVE 100-CAP HEARTBEAT STATE
+  const [trialStatus, setTrialStatus] = useState({
+    count: 0,
+    cap: 100,
+    remaining: 100,
+    isOpen: true,
+    month: ''
+  });
+
   const isDark = theme === 'dark';
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+
+  useEffect(() => {
+    fetch('https://legacy.staymedia.ng/wp-json/staymedia/v1/trial-status')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success) {
+          setTrialStatus({
+            count: typeof data.count === 'number' ? data.count : 0,
+            cap: data.cap || 100,
+            remaining: typeof data.remaining === 'number' ? data.remaining : 100,
+            isOpen: data.is_open !== false,
+            month: data.month || ''
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -80,15 +106,12 @@ export default function App() {
     <div className={`min-h-screen w-full font-body overflow-x-clip transition-colors duration-200 ${
       isDark ? 'bg-[#0C150F] text-white' : 'bg-[#F4FBF2] text-[#111827]'
     }`}>
-      
-      {/* Header with '?' FAQ Drawer Trigger */}
       <Header
         theme={theme}
         onToggleTheme={toggleTheme}
         onOpenFaqDrawer={() => setIsFaqDrawerOpen(true)}
       />
 
-      {/* VIEW CONDITIONAL: CONFIRMATION SCREEN VS STANDARD STOREFRONT */}
       {isSubmitted ? (
         <main className="w-full">
           <TrialConfirmationView
@@ -98,37 +121,32 @@ export default function App() {
         </main>
       ) : (
         <main className="w-full">
-          {/* 1. HERO */}
           <Hero
-            onClaimClick={() => setIsModalOpen(true)}
+            onClaimClick={() => trialStatus.isOpen && setIsModalOpen(true)}
             onOpenLegal={handleOpenLegal}
             isDark={isDark}
+            trialStatus={trialStatus}
           />
 
-          {/* 2. STICKY PAGE MENU: [ Benefits ] [ How it works ] [ Cases ] */}
           <StickyPageMenu
             activeSection={activeSection}
             onSelectSection={handleSelectSection}
             isDark={isDark}
           />
 
-          {/* 3. BENEFITS SECTION (6-POINT NOTION GRID & RISK REVERSAL) */}
           <BenefitsSection
             isDark={isDark}
-            onClaimClick={() => setIsModalOpen(true)}
+            onClaimClick={() => trialStatus.isOpen && setIsModalOpen(true)}
           />
 
-          {/* 4. HOW IT WORKS SECTION */}
           <HowItWorksSection isDark={isDark} />
 
-          {/* 5. CASES SECTION */}
-          <CasesSection onOpenBrief={() => setIsModalOpen(true)} isDark={isDark} />
+          <CasesSection onOpenBrief={() => trialStatus.isOpen && setIsModalOpen(true)} isDark={isDark} />
         </main>
       )}
 
       <Footer onOpenLegal={handleOpenLegal} isDark={isDark} />
 
-      {/* POLISHED STICKY BOTTOM BUTTON */}
       <AnimatePresence>
         {showBottomCta && !isModalOpen && !isLegalModalOpen && !isFaqDrawerOpen && !isSubmitted && (
           <motion.div
@@ -138,38 +156,41 @@ export default function App() {
             className="fixed bottom-7 sm:bottom-9 left-1/2 -translate-x-1/2 z-40 w-full max-w-[340px] sm:max-w-[460px] min-[1024px]:max-w-[500px] px-4 pointer-events-auto"
           >
             <motion.button
-              whileHover={{ scale: 1.035, y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setIsModalOpen(true)}
-              className="w-full py-4 rounded-full bg-[#0EA34A] hover:bg-[#0C8F40] text-white font-display font-extrabold text-xs uppercase tracking-wider shadow-2xl transition-all flex items-center justify-center space-x-2 cursor-pointer border border-white/20"
+              whileHover={trialStatus.isOpen ? { scale: 1.035, y: -2 } : {}}
+              whileTap={trialStatus.isOpen ? { scale: 0.96 } : {}}
+              disabled={!trialStatus.isOpen}
+              onClick={() => trialStatus.isOpen && setIsModalOpen(true)}
+              className={`w-full py-4 rounded-full font-display font-extrabold text-xs uppercase tracking-wider shadow-2xl transition-all flex items-center justify-center space-x-2 border border-white/20 ${
+                trialStatus.isOpen
+                  ? 'bg-[#0EA34A] hover:bg-[#0C8F40] text-white cursor-pointer'
+                  : 'bg-gray-600 text-white/70 cursor-not-allowed opacity-85'
+              }`}
             >
-              <span>CLAIM FREE TRIAL</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>{trialStatus.isOpen ? 'CLAIM FREE TRIAL' : 'COHORT FULL (100/100)'}</span>
+              {trialStatus.isOpen && <ArrowRight className="w-3.5 h-3.5" />}
             </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Full-Screen Categorized FAQ Drawer (Triggered by '?' Icon in Header) */}
       <FaqDrawer
         isOpen={isFaqDrawerOpen}
         onClose={() => setIsFaqDrawerOpen(false)}
         isDark={isDark}
         onOpenBrief={() => {
           setIsFaqDrawerOpen(false);
-          setIsModalOpen(true);
+          if (trialStatus.isOpen) setIsModalOpen(true);
         }}
       />
 
-      {/* Primary Conversion Intake Modal */}
       <QuoteModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleFormSuccess}
         onOpenLegal={handleOpenLegal}
+        isDark={isDark}
       />
 
-      {/* Dedicated Legal Governance Reader (Terms & Privacy) */}
       <LegalModal
         isOpen={isLegalModalOpen}
         onClose={() => setIsLegalModalOpen(false)}
