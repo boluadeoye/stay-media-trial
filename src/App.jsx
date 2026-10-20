@@ -23,7 +23,7 @@ export default function App() {
   const [showBottomCta, setShowBottomCta] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // LIVE 100-CAP HEARTBEAT STATE
+  // 100-CAP LIVE HEARTBEAT STATE
   const [trialStatus, setTrialStatus] = useState({
     count: 0,
     cap: 100,

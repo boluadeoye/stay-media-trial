@@ -5,6 +5,7 @@ import { TRIAL_SERVICE_DATA, TRIAL_ASSETS } from '../constants/trialData';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^[+0-9\s\-()]{8,20}$/;
+const CHECK_DUPLICATE_ENDPOINT = "https://legacy.staymedia.ng/wp-json/staymedia/v1/check-duplicate";
 
 export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, isDark = false }) {
   const [activeReviewIdx, setActiveReviewIdx] = useState(0);
@@ -29,6 +30,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
   const [formStatus, setFormStatus] = useState('idle');
   const [errors, setErrors] = useState({});
   const [validationAlert, setValidationAlert] = useState('');
+  const [checkingField, setCheckingField] = useState({ email: false, businessName: false, phone: false });
 
   const toggleChallenge = (item) => {
     setFormData(prev => ({
@@ -39,7 +41,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
     }));
   };
 
-  const validateField = (field, value) => {
+  const validateLocalField = (field, value) => {
     let error = '';
     const trimmed = (value || '').trim();
 
@@ -60,15 +62,68 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
     return error;
   };
 
+  // LIVE PRE-FLIGHT ASYNC DEDUPLICATION CHECK ON BLUR
+  const checkLiveDuplicate = async (field, value) => {
+    const trimmed = (value || '').trim();
+    if (!trimmed) return;
+
+    if (field === 'email' && !EMAIL_REGEX.test(trimmed)) return;
+    if (field === 'phone' && !PHONE_REGEX.test(trimmed)) return;
+    if (field === 'businessName' && trimmed.length < 2) return;
+
+    setCheckingField(prev => ({ ...prev, [field]: true }));
+
+    try {
+      const res = await fetch(CHECK_DUPLICATE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ field, value: trimmed })
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (data && data.exists === true) {
+        setErrors(prev => ({ ...prev, [field]: data.message }));
+      } else {
+        setErrors(prev => {
+          const next = { ...prev };
+          if (next[field] === 'Email has already been used' || next[field] === 'Business already applied' || next[field] === 'Existing number add a new one') {
+            delete next[field];
+          }
+          return next;
+        });
+      }
+    } catch (err) {
+      // Fail silently on network errors so user is never blocked
+    } finally {
+      setCheckingField(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
+  // INSTANT ERROR CLEARANCE ON KEYSTROKE
   const handleFieldChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    const error = validateField(field, value);
+    const localErr = validateLocalField(field, value);
+
     setErrors(prev => {
       const next = { ...prev };
-      if (error) { next[field] = error; } else { delete next[field]; }
+      if (localErr) {
+        next[field] = localErr;
+      } else {
+        // Purge error immediately as soon as local validation passes
+        delete next[field];
+      }
       return next;
     });
+
     if (validationAlert) setValidationAlert('');
+  };
+
+  const handleFieldBlur = (field) => {
+    const val = formData[field];
+    const localErr = validateLocalField(field, val);
+    if (!localErr && (field === 'email' || field === 'businessName' || field === 'phone')) {
+      checkLiveDuplicate(field, val);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -76,12 +131,14 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
 
     const newErrors = {};
     ['fullName', 'businessName', 'phone', 'email'].forEach(f => {
-      const err = validateField(f, formData[f]);
+      const err = validateLocalField(f, formData[f]);
       if (err) newErrors[f] = err;
     });
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    const mergedErrors = { ...errors, ...newErrors };
+
+    if (Object.keys(mergedErrors).length > 0) {
+      setErrors(mergedErrors);
       setValidationAlert('Please correct the highlighted fields before submitting your application.');
       const scrollable = document.getElementById('modal-scroll-container');
       if (scrollable) scrollable.scrollTo({ top: 0, behavior: 'smooth' });
@@ -129,9 +186,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
         if (onClose) onClose();
       } else {
         setFormStatus('idle');
-        const userFriendlyMsg = (resData.message && !resData.message.includes('handler') && !resData.message.includes('code'))
-          ? resData.message
-          : 'Unable to submit trial application. If you have already applied for this cohort, please contact support.';
+        const userFriendlyMsg = resData.message || 'Unable to submit trial application. Please check your details and try again.';
         setValidationAlert(userFriendlyMsg);
         const scrollable = document.getElementById('modal-scroll-container');
         if (scrollable) scrollable.scrollTo({ top: 0, behavior: 'smooth' });
@@ -291,6 +346,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
                       placeholder="Samuel Adeleke"
                       value={formData.fullName}
                       onChange={(e) => handleFieldChange('fullName', e.target.value)}
+                      onBlur={() => handleFieldBlur('fullName')}
                       className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none transition-colors ${
                         errors.fullName
                           ? 'bg-red-500/10 border-2 border-red-500'
@@ -309,6 +365,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
                       placeholder="Company name"
                       value={formData.businessName}
                       onChange={(e) => handleFieldChange('businessName', e.target.value)}
+                      onBlur={() => handleFieldBlur('businessName')}
                       className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none transition-colors ${
                         errors.businessName
                           ? 'bg-red-500/10 border-2 border-red-500'
@@ -329,6 +386,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
                       placeholder="+234..."
                       value={formData.phone}
                       onChange={(e) => handleFieldChange('phone', e.target.value)}
+                      onBlur={() => handleFieldBlur('phone')}
                       className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none transition-colors ${
                         errors.phone
                           ? 'bg-red-500/10 border-2 border-red-500'
@@ -347,6 +405,7 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
                       placeholder="name@company.com"
                       value={formData.email}
                       onChange={(e) => handleFieldChange('email', e.target.value)}
+                      onBlur={() => handleFieldBlur('email')}
                       className={`w-full px-3 py-2 rounded-[6px] text-xs focus:outline-none transition-colors ${
                         errors.email
                           ? 'bg-red-500/10 border-2 border-red-500'
@@ -462,7 +521,6 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
                   </select>
                 </div>
 
-                {/* BOSS-MANDATED COPY CHANGE: "would you consider STAY MEDIA as your partner? *" */}
                 <div>
                   <label className={`block text-[10.5px] font-bold mb-1 ${isDark ? 'text-white/90' : 'text-[#111827]'}`}>
                     If the trial delivers value, would you consider STAY MEDIA as your partner? *
@@ -478,7 +536,6 @@ export default function QuoteModal({ isOpen, onClose, onSuccess, onOpenLegal, is
                   </select>
                 </div>
 
-                {/* BOSS-MANDATED B2B AUTHORIZATION STATEMENT */}
                 <div className="pt-1">
                   <label className="flex items-start space-x-2.5 cursor-pointer select-none">
                     <input
